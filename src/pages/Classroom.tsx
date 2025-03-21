@@ -280,7 +280,17 @@ export default function Classroom() {
         {/* Tab 切換 */}
         <Tabs>
           <TabButton active={activeTab === 'list'} onClick={() => setActiveTab('list')}>Student List</TabButton>
-          <TabButton active={activeTab === 'group'} onClick={() => {  handleGroupButtonClick(); return setActiveTab('group')}}>Group</TabButton>
+          <TabButton 
+            active={activeTab === 'group'} 
+            onClick={() => {
+              if (activeTab !== 'group') {
+                handleGroupButtonClick();
+              }
+              setActiveTab('group');
+            }}
+          >
+            Group
+          </TabButton>
         </Tabs>
 
         {activeTab === 'list' ? (
