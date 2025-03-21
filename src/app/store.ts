@@ -1,9 +1,9 @@
 import { configureStore } from '@reduxjs/toolkit';
-import qrReducer from '../features/qr/qrSlice';
+import classReducer from '../features/classSlice';
 
 export const store = configureStore({
   reducer: {
-    qr: qrReducer,
+    classroom: classReducer,
   },
 });
 
