@@ -9,7 +9,21 @@ const Wrapper = styled.div`
   display: flex;
   height: 100vh;
 `;
-
+const LoadingOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+  font-weight: bold;
+  color: #007bff;
+  z-index: 1000;
+`;
 const LeftPanel = styled.div<{ show: boolean }>`
   width: ${({ show }) => (show ? '350px' : '0')};
   background-color: white;
@@ -130,15 +144,36 @@ const Grid = styled.div`
   gap: 10px;
 `;
 
-const Card = styled.div<{ selected?: boolean }>`
-  background-color: ${({ selected }) => (selected ? '#e1eaff' : 'white')};
-  border: 2px solid ${({ selected }) => (selected ? '#007bff' : '#ddd')};
+const Card = styled.div<{ selected?: boolean, guest?:boolean }>`
+  background-color: ${({ selected, guest }) => {
+    if(guest){
+      return 'gray'
+    }
+    else if(selected){
+      return '#007bff'
+    }
+    
+    return 'white'
+  }};
+  border: 2px solid ${({ selected, guest }) => {
+    if(guest){
+      return 'gray'
+    }else if(selected){
+      return '#007bff'
+    }else{
+      return 'transparent'
+    }
+  }};
   border-radius: 8px;
   padding: 10px;
   text-align: center;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   cursor: pointer;
 `;
+const ScoreContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center`;
 
 const ScoreButton = styled.button`
   margin: 4px;
@@ -158,6 +193,7 @@ export default function Classroom() {
   const [groupedStudents, setGroupedStudents] = useState<any[][]>([]);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const menuOptions = ['設定', '重設分數', '顯示統計', '隨機分組', '退出課堂'];
 
@@ -173,7 +209,7 @@ export default function Classroom() {
           setSelectedStudent(foundStudent);
         }
       }
-    });
+    }).finally(() => setLoading(false)); ;
   }, [dispatch]);
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -229,6 +265,7 @@ export default function Classroom() {
   return (
     <Wrapper>
       {/* 左側 QRCode + 學生資訊 */}
+      {loading && <LoadingOverlay>Loading...模擬 api 等待10秒</LoadingOverlay>}
       <LeftPanel show={selectedStudent !== null}>
         {selectedStudent !== null && (
           <QRCodeContainer>
@@ -299,25 +336,30 @@ export default function Classroom() {
               <Card 
                 key={student.id} 
                 selected={selectedStudent?.id === student.id} 
+                guest={student.guest}
                 onClick={() => handleStudentClick(student)} 
                 style={{ borderColor: student.score === 0 ? 'red' : undefined }}
               >
+                <div>{student.id}</div>
                 <div>{student.name}</div>
-                <div>分數: {student.score}</div>
-                <ScoreButton 
-                  onClick={(e) => { 
-                    e.stopPropagation(); 
-                    if (student.score > 0) dispatch(decrementScore(student.id)); 
-                  }} 
-                  disabled={student.score === 0}
-                >
-                  -1
-                </ScoreButton>
-                <ScoreButton 
-                  onClick={(e) => { e.stopPropagation(); dispatch(incrementScore(student.id)); }}
-                >
-                  +1
-                </ScoreButton>
+                <ScoreContainer>
+                  <ScoreButton 
+                    onClick={(e) => { 
+                      e.stopPropagation(); 
+                      if (student.score > 0) dispatch(decrementScore(student.id)); 
+                    }} 
+                    disabled={student.score === 0 || student.guest}
+                  >
+                    -1
+                  </ScoreButton>
+                  <div> {student.score}</div>
+                  <ScoreButton 
+                    onClick={(e) => { e.stopPropagation(); dispatch(incrementScore(student.id)); }}
+                    disabled={ student.guest}
+                  >
+                    +1
+                  </ScoreButton>
+                </ScoreContainer>
               </Card>
             ))}
           </Grid>

@@ -15,9 +15,10 @@ export const fetchClassroomData = async () => {
             { id: 9, name: 'Gdv lkijs', score: 3 },
             { id: 10, name: 'Uskldnvsd', score: 4 },
             { id: 11, name: 'Gdv daslkijs', score: 2 },
+            { id: 12, name: 'Gdv daslkijs', score: 0 ,guest: true},
           ]
         })
-      }, 1000);
+      }, 1000*10);
     })
       
     

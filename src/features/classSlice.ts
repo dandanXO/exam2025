@@ -4,6 +4,7 @@ interface Student {
   id: number;
   name: string;
   score: number;
+  guest?: boolean;
 }
 
 interface ClassroomState {
